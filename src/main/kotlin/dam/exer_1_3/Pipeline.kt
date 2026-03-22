@@ -21,3 +21,44 @@ class Pipeline {
         }
     }
 }
+
+fun buildPipeline(block: Pipeline.() -> Unit): Pipeline {
+    return Pipeline().apply(block)
+}
+
+fun main() {
+    val logs = listOf(
+        " INFO: server started ",
+        " ERROR: disk full ",
+        " DEBUG: checking config ",
+        " ERROR: out of memory ",
+        " INFO: request received ",
+        " ERROR: connection timeout"
+    )
+
+    val myPipeline = buildPipeline {
+        addStage("Trim") { list ->
+            list.map { it.trim() }
+        }
+
+        addStage("Filter errors") { list ->
+            list.filter { it.contains("ERROR") }
+        }
+
+        addStage("Uppercase") { list ->
+            list.map {it.uppercase()}
+        }
+
+        addStage("Add index") { list ->
+            list.mapIndexed { index, line -> "${index + 1}. $line" }
+        }
+    }
+
+    println("Pipeline stages:")
+    myPipeline.describe()
+
+    val result = myPipeline.execute(logs)
+
+    println("\nResult:")
+    result.forEach { println(it) }
+}
