@@ -15,3 +15,11 @@ fun List<Event>.filterByUser (username: String) : List<Event> =
         }
     }
 
+fun List<Event>.totalSpent(username: String) : Double =
+    filterIsInstance<Event.Purchase>()
+        .filter { it.username == username }
+        .sumOf { it.amount }
+
+fun processEvents(events: List<Event>, handler: (Event) -> Unit){
+    events.forEach { handler(it) }
+}
