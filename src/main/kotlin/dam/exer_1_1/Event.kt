@@ -1,9 +1,9 @@
 package dam.exer_1_1
 
 sealed class Event {
-    class Login (val username: String, val timestamp: Long) : Event()
-    class Purchase (val username: String, val amount: Double, val timestamp: Long) : Event()
-    class Logout (val username: String, val timestamp: Long) : Event()
+    data class Login (val username: String, val timestamp: Long) : Event()
+    data class Purchase (val username: String, val amount: Double, val timestamp: Long) : Event()
+    data class Logout (val username: String, val timestamp: Long) : Event()
 }
 
 fun List<Event>.filterByUser (username: String) : List<Event> =
@@ -22,4 +22,30 @@ fun List<Event>.totalSpent(username: String) : Double =
 
 fun processEvents(events: List<Event>, handler: (Event) -> Unit){
     events.forEach { handler(it) }
+}
+
+fun main(){
+    val events = listOf (
+        Event.Login ("alice", 1_000),
+        Event.Purchase ("alice", 49.99, 1_100),
+        Event.Purchase ("bob", 19.99, 1_200),
+        Event.Login ("bob" , 1_050),
+        Event.Purchase ("alice", 15.00, 1_300),
+        Event.Logout ("alice", 1_400),
+        Event.Logout ("bob", 1_500)
+    )
+
+    processEvents(events){ event ->
+        when(event){
+            is Event.Login -> println("[LOGIN] ${event.username} logged in at t=${event.timestamp}")
+            is Event.Purchase -> println("[PURCHASE] ${event.username} spent $${event.amount} at t=${event.timestamp}")
+            is Event.Logout -> println("[LOGOUT] ${event.username} logged out at t=${event.timestamp}")
+        }
+    }
+
+    println("Total spent by alice: $${"%.2f".format(events.totalSpent("alice"))}")
+    println("Total spent by bob: $${"%.2f".format(events.totalSpent("bob"))}")
+
+    println("Events for alice:")
+    events.filterByUser("alice").forEach { println(it) }
 }
