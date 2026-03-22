@@ -21,4 +21,31 @@ class Cache<K: Any, V: Any> () {
             println("Entry doesn't exist in cache.")
         }
     }
+
+    fun size(): Int{
+        return map.size
+    }
+
+    fun getOrPut (key: K, default: () -> V): V{
+        val cacheValue = get(key)
+
+        if (cacheValue != null) {
+            return cacheValue
+        } else {
+            val defaultValue = default()
+            put(key, defaultValue)
+            return defaultValue
+        }
+    }
+
+    fun transform(key: K, action: (V) -> V): Boolean {
+        val cacheValue = get(key)
+
+        if (cacheValue != null) {
+            val newValue = action(cacheValue)
+            put(key, newValue)
+            return true
+        }
+        return false
+    }
 }
