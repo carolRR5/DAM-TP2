@@ -20,6 +20,18 @@ class Pipeline {
             println("${index + 1}. ${stage.first}")
         }
     }
+
+    fun compose(name1: String, name2: String, newName: String) {
+        val s1 = stagesList.find { it.first == name1 }?.second
+        val s2 = stagesList.find { it.first == name2 }?.second
+
+        if (s1 != null && s2 != null) {
+            addStage(newName) { input -> s2(s1(input))}
+        }
+    }
+
+    fun fork(other: Pipeline, input: List<String>) =
+        this.execute(input) to other.execute(input)
 }
 
 fun buildPipeline(block: Pipeline.() -> Unit): Pipeline {
@@ -61,4 +73,16 @@ fun main() {
 
     println("\nResult:")
     result.forEach { println(it) }
+
+    println()
+    myPipeline.compose("Trim", "Filter errors", "Trim + Filter errors")
+
+    val pipeline2 = buildPipeline {
+        addStage("Trim") {list -> list.map { it.trim() }}
+        addStage("Uppercase") {list -> list.map { it.uppercase() }}
+    }
+
+    val (result1, result2) = myPipeline.fork(pipeline2, logs)
+    println("Fork result 1: ${result1}")
+    println("Fork result 2: ${result2}")
 }
