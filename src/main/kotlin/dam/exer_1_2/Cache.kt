@@ -52,6 +52,10 @@ class Cache<K: Any, V: Any> () {
     fun snapshot(): Map<K, V> {
         return map.toMap()
     }
+
+    fun filterValues(predicate: (V) -> Boolean): Map<K, V> =
+        map.filter { predicate(it.value) }.toMap()
+
 }
 
 fun main(){
@@ -88,5 +92,7 @@ fun main(){
     cache2.evict(1)
     println("Afeter evict id 1, size: ${cache2.size()}" + "\nId 1 after evict -> ${cache2.get(1)}")
 
+    println()
 
+    println("Words with count > 0: ${cache1.filterValues { it > 0}}")
 }
